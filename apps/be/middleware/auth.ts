@@ -6,9 +6,10 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.header("Authorization");
     if (!token) {
-      return res.status(401).json({
+      res.status(401).json({
         message: "Unauthorized",
       });
+      return;
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
@@ -22,8 +23,11 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     req.user = decoded as any as { username: string; userId: string };
     next();
   } catch (error) {
-    return res.status(401).json({
+    res.status(401).json({
       message: "Unauthorized",
     });
+    return;
   }
 };
+
+export default authMiddleware;

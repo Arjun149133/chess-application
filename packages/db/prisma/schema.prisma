@@ -14,21 +14,60 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  // GameAsWhitePlayer Game[]   @relation("WhitePlayer")
-  // GameAsBlackPlayer Game[]   @relation("BlackPlayer")
+  id                String   @id @default(uuid())
+  username          String   @unique
+  password          String
+  createdAt         DateTime @default(now())
+  GameAsWhitePlayer Game[]   @relation("WhitePlayer")
+  GameAsBlackPlayer Game[]   @relation("BlackPlayer")
+  rating            Int      @default(1200)
 }
 
-// model Game {
-//   id            String   @id @default(uuid())
-//   whitePlayerId String
-//   blackPlayerId String
-//   whitePlayer   User     @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
-//   blackPlayer   User     @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
-//   moves         String[]
-//   result        String
-//   createdAt     DateTime @default(now())
-// }
+model Game {
+  id            String       @id @default(uuid())
+  whitePlayerId String
+  blackPlayerId String
+  whitePlayer   User         @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
+  blackPlayer   User         @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
+  moves         Move[]
+  beforeFen     String       @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  currentFen    String       @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  result        GameResult   @default(NORESULT)
+  time          GameTime
+  progress      GameProgress @default(INPROGRESS)
+  createdAt     DateTime     @default(now())
+}
+
+model Move {
+  id        Int      @id @default(autoincrement())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id])
+  from      String
+  to        String
+  piece     String
+  captured  String?
+  promotion String?
+  createdAt DateTime @default(now())
+}
+
+enum GameResult {
+  WHITEWIN
+  BLACKWIN
+  DRAW
+  NORESULT
+}
+
+enum GameProgress {
+  INPROGRESS
+  ABANDONED
+  FINISHED
+  TIMEUP
+  PLAYEREXIT
+}
+
+enum GameTime {
+  BULLET
+  BLITZ
+  RAPID
+  CLASSICAL
+}
