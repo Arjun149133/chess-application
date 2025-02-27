@@ -24,18 +24,20 @@ model User {
 }
 
 model Game {
-  id            String       @id @default(uuid())
-  whitePlayerId String
-  blackPlayerId String
-  whitePlayer   User         @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
-  blackPlayer   User         @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
-  moves         Move[]
-  beforeFen     String       @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-  currentFen    String       @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-  result        GameResult   @default(NORESULT)
-  time          GameTime
-  progress      GameProgress @default(INPROGRESS)
-  createdAt     DateTime     @default(now())
+  id                       String       @id @default(uuid())
+  whitePlayerId            String
+  blackPlayerId            String
+  whitePlayer              User         @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
+  blackPlayer              User         @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
+  moves                    Move[]
+  beforeFen                String       @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  currentFen               String       @default("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  result                   GameResult   @default(NORESULT)
+  time                     GameTime
+  progress                 GameProgress @default(INPROGRESS)
+  whitePlayerTimeRemaining Int          @default(0)
+  blackPlayerTimeRemaining Int          @default(0)
+  createdAt                DateTime     @default(now())
 }
 
 model Move {

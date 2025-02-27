@@ -5,3 +5,9 @@ export type User = {
   username: string;
   ws: WebSocket;
 };
+
+export type MoveType = {
+  from: string;
+  to: string;
+  promotion?: string;
+};

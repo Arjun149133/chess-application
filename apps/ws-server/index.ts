@@ -18,6 +18,7 @@ wss.on("connection", function connection(ws, req) {
     return;
   }
 
+  console.log("connected", user.username);
   gameManager.addPlayer(user);
 
   ws.on("close", () => {
