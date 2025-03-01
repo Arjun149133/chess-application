@@ -22,6 +22,7 @@ wss.on("connection", function connection(ws, req) {
   gameManager.addPlayer(user);
 
   ws.on("close", () => {
+    console.log("disconnected", user.username);
     gameManager.removePlayer(user);
   });
 });

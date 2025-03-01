@@ -12,8 +12,22 @@ router.post("/register", async (req: Request, res: Response) => {
     const { username, password } = req.body;
     const validUserSchema = UserSchema.safeParse({ username, password });
     if (!validUserSchema.success) {
+      const message = JSON.parse(validUserSchema.error.message);
       res.status(400).json({
-        message: "Invalid username or password",
+        message: message[0].message,
+      });
+      return;
+    }
+
+    const user = await client.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (user) {
+      res.status(400).json({
+        message: "User already exists",
       });
       return;
     }
@@ -27,9 +41,17 @@ router.post("/register", async (req: Request, res: Response) => {
       },
     });
 
+    const token = jwt.sign(
+      {
+        username: result.username,
+        userId: result.id,
+      },
+      process.env.JWT_SECRET!
+    );
+
     res.status(201).json({
       message: "User created successfully",
-      userId: result.id,
+      token,
     });
   } catch (error) {
     console.error(error);

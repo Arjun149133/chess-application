@@ -1,12 +1,16 @@
+import { client } from "@repo/db/client";
 import { Game } from "./Game";
 import {
   ACCEPT_DRAW,
   DECLINE_DRAW,
   DRAW,
+  GAME_OVER,
   INIT_GAME,
+  JOIN_GAME,
   MOVE,
   OFFER_DRAW,
   RESIGN,
+  WAITING,
   type GAME_TYPE,
 } from "./messages";
 import type { User } from "./types";
@@ -35,7 +39,7 @@ export class GameManager {
           this.pendingGameId.set(gameType, player.userId);
           player.ws.send(
             JSON.stringify({
-              type: "waiting",
+              type: WAITING,
               payload: {
                 message: "waiting for other player",
               },
@@ -54,7 +58,7 @@ export class GameManager {
             if (whitePlayer.userId === player.userId) {
               player.ws.send(
                 JSON.stringify({
-                  type: "waiting",
+                  type: WAITING,
                   payload: {
                     message: "waiting for other player",
                   },
@@ -70,7 +74,7 @@ export class GameManager {
             this.pendingGameId.set(gameType, player.userId);
             player.ws.send(
               JSON.stringify({
-                type: "waiting",
+                type: WAITING,
                 payload: {
                   message: "waiting for other player",
                 },
@@ -119,6 +123,47 @@ export class GameManager {
           game.acceptDraw();
         } else if (payload.action === DECLINE_DRAW) {
           game.declineDraw(player);
+        }
+      }
+
+      if (message.type === JOIN_GAME) {
+        const payload = message.payload;
+        const game = this.games.find((g) => g.gameId === payload.gameId);
+
+        if (!game) {
+          console.error("game not found");
+          return;
+        }
+
+        if (game.whitePlayer.userId === player.userId) {
+          game.updateWhitePlayer(player);
+        } else if (game.blackPlayer.userId === player.userId) {
+          game.updateBlackPlayer(player);
+        } else {
+          console.log("player not in game");
+          return;
+        }
+
+        const gameFromDb = await client.game.findUnique({
+          where: {
+            id: payload.gameId,
+          },
+        });
+
+        if (!gameFromDb) {
+          console.error("game not found");
+          return;
+        }
+
+        if (gameFromDb.progress !== "INPROGRESS") {
+          player.ws.send(
+            JSON.stringify({
+              type: GAME_OVER,
+              payload: {
+                gameId: payload.gameId,
+              },
+            })
+          );
         }
       }
     });

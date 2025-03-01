@@ -22,11 +22,15 @@ router.get("/playedgames", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/game/:gameId", authMiddleware, async (req, res) => {
+router.get("/:gameId", authMiddleware, async (req, res) => {
   try {
     const game = await client.game.findUnique({
       where: {
         id: req.params.gameId,
+      },
+      include: {
+        whitePlayer: true,
+        blackPlayer: true,
       },
     });
 

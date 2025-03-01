@@ -7,6 +7,7 @@ import {
   DRAW,
   OFFER_DRAW,
   DECLINE_DRAW,
+  INIT_GAME,
 } from "./messages";
 import type { MoveType, User } from "./types";
 import { Chess, Move, type Square } from "chess.js";
@@ -15,8 +16,8 @@ import { isPromoting, returnsTime } from "./utils";
 
 export class Game {
   public gameId: string;
-  private whitePlayer: User;
-  private blackPlayer: User;
+  public whitePlayer: User;
+  public blackPlayer: User;
   private gameType: GAME_TYPE;
   private chess: Chess;
   private moveCount: number = 0;
@@ -41,7 +42,7 @@ export class Game {
       await this.addGameToDb();
 
       const message = JSON.stringify({
-        type: "init_game",
+        type: INIT_GAME,
         payload: {
           gameId: this.gameId,
           gameType: this.gameType,
@@ -56,6 +57,14 @@ export class Game {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  updateWhitePlayer(player: User) {
+    this.whitePlayer = player;
+  }
+
+  updateBlackPlayer(player: User) {
+    this.blackPlayer = player;
   }
 
   async addGameToDb() {
