@@ -32,3 +32,4 @@ export const WAITING: string = "waiting";
 export const INVALID_MOVE: string = "invalid_move";
 export const GAME_OVER: string = "game_over";
 export const JOIN_GAME: string = "join_game";
+export const IN_PROGRESS: string = "in_progress";

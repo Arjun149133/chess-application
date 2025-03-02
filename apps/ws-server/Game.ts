@@ -8,6 +8,8 @@ import {
   OFFER_DRAW,
   DECLINE_DRAW,
   INIT_GAME,
+  MOVE,
+  INVALID_MOVE,
 } from "./messages";
 import type { MoveType, User } from "./types";
 import { Chess, Move, type Square } from "chess.js";
@@ -53,7 +55,7 @@ export class Game {
 
       this.broadCast(message);
       this.sendWhitePlayerTimeCount();
-      this.abondonedGame(this.whitePlayer);
+      // this.abondonedGame(this.whitePlayer);
     } catch (error) {
       console.error(error);
     }
@@ -159,10 +161,10 @@ export class Game {
 
       if (this.chess.turn() === "w") {
         this.sendWhitePlayerTimeCount();
-        this.abondonedGame(this.whitePlayer);
+        // this.abondonedGame(this.whitePlayer);
       } else {
         this.sendBlackPlayerTimeCount();
-        this.abondonedGame(this.blackPlayer);
+        // this.abondonedGame(this.blackPlayer);
       }
 
       await this.addMoveToDb(moveResult);
@@ -190,7 +192,7 @@ export class Game {
       }
 
       const message = JSON.stringify({
-        type: "move",
+        type: MOVE,
         payload: {
           gameId: this.gameId,
           move: moveResult,
@@ -200,7 +202,7 @@ export class Game {
     } catch (error) {
       console.error(error);
       const message = JSON.stringify({
-        type: "invalid_move",
+        type: INVALID_MOVE,
         payload: {
           gameId: this.gameId,
         },

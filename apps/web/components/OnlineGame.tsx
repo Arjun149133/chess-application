@@ -1,44 +1,144 @@
-import { useMemo, useState } from "react";
+"use client";
+import { useEffect, useMemo, useState } from "react";
 import { Chess, Move } from "chess.js";
 import { Chessboard } from "react-chessboard";
+import { MOVE, PLAYER_TIME } from "@lib/messages";
+import useToken from "@hooks/useToken";
+import useTimer from "@hooks/useTimer";
+import { ProfileCard } from "./ProfileCard";
 
-export default function OnlineGameBoard() {
-  const game = useMemo(() => new Chess(), []);
-  const [gamePosition, setGamePostion] = useState(game.fen());
+export default function OnlineGameBoard({
+  gameId,
+  whitePlayerUserName,
+  blackPlayerUserName,
+  socket,
+  gameFen,
+}: {
+  gameId: string;
+  whitePlayerUserName: string;
+  blackPlayerUserName: string;
+  socket: WebSocket | null;
+  gameFen: string;
+}) {
+  const game = useMemo(() => new Chess(gameFen), []);
+  const [gamePosition, setGamePostion] = useState<string>(gameFen);
+  const { username } = useToken();
+  const [timer, setTimer] = useState({
+    whitePlayerTimeRemaining: 0,
+    blackPlayerTimeRemaining: 0,
+  });
 
-  function makeRandomMove(): void {
-    const possibleMoves = game.moves();
-    if (game.isGameOver() || game.isDraw() || possibleMoves.length === 0)
-      return;
+  useEffect(() => {
+    if (!socket) return;
 
-    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-    game.move(possibleMoves[randomIndex]!);
-    setGamePostion(game.fen());
-  }
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      switch (message.type) {
+        case MOVE:
+          const move = message.payload.move;
+
+          if (game.get(move.from) === undefined) {
+            break;
+          }
+
+          game.move({
+            from: move.from,
+            to: move.to,
+            promotion: "q",
+          });
+          setGamePostion(game.fen());
+          break;
+
+        case PLAYER_TIME:
+          console.log("timer", message.payload);
+          setTimer({
+            whitePlayerTimeRemaining: message.payload.whitePlayerTimeRemaining,
+            blackPlayerTimeRemaining: message.payload.blackPlayerTimeRemaining,
+          });
+          break;
+
+        default:
+          break;
+      }
+    };
+  }, [socket]);
 
   function onDrop(sourceSquare: string, targetSquare: string): boolean {
-    console.log("sourceSquare", sourceSquare, targetSquare);
-    const move = {
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: "q", // always promote to a queen for example simplicity
-    } as Move;
+    try {
+      if (!socket) return false;
 
-    if (move === null) return false;
-    game.move(move);
-    setGamePostion(game.fen());
-    console.log("game.fen()", game.fen());
-    setTimeout(makeRandomMove, 200);
-    return true;
+      if (game.turn() === "w" && username !== whitePlayerUserName) {
+        return false;
+      }
+      if (game.turn() === "b" && username !== blackPlayerUserName) {
+        return false;
+      }
+
+      const move = {
+        from: sourceSquare,
+        to: targetSquare,
+        promotion: "q", // always promote to a queen for example simplicity
+      } as Move;
+      game.move(move);
+      setGamePostion(game.fen());
+
+      socket.send(
+        JSON.stringify({
+          type: MOVE,
+          payload: {
+            gameId: gameId,
+            move: {
+              from: sourceSquare,
+              to: targetSquare,
+              promotion: "q",
+            },
+          },
+        })
+      );
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 
   return (
     <div>
+      <div className=" w-[500px]">
+        <ProfileCard
+          username={
+            username === whitePlayerUserName
+              ? blackPlayerUserName
+              : whitePlayerUserName
+          }
+          time={
+            username === whitePlayerUserName
+              ? timer.blackPlayerTimeRemaining
+              : timer.whitePlayerTimeRemaining
+          }
+        />
+      </div>
       <Chessboard
         position={gamePosition}
         onPieceDrop={onDrop}
         boardWidth={500}
+        boardOrientation={whitePlayerUserName === username ? "white" : "black"}
       />
+      <div className=" w-[500px]">
+        <ProfileCard
+          username={
+            username === whitePlayerUserName
+              ? whitePlayerUserName
+              : blackPlayerUserName
+          }
+          time={
+            username === whitePlayerUserName
+              ? timer.whitePlayerTimeRemaining
+              : timer.blackPlayerTimeRemaining
+          }
+        />
+      </div>
     </div>
   );
 }

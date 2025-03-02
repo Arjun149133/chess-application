@@ -5,6 +5,7 @@ import {
   DECLINE_DRAW,
   DRAW,
   GAME_OVER,
+  IN_PROGRESS,
   INIT_GAME,
   JOIN_GAME,
   MOVE,
@@ -33,6 +34,7 @@ export class GameManager {
   private addHandler(player: User) {
     player.ws.on("message", async (msg) => {
       const message = JSON.parse(msg.toString());
+      console.log(message);
       if (message.type === INIT_GAME) {
         const gameType = message.payload.gameType;
         if (!this.pendingGameId.has(gameType)) {
@@ -127,6 +129,7 @@ export class GameManager {
       }
 
       if (message.type === JOIN_GAME) {
+        console.log("join_game");
         const payload = message.payload;
         const game = this.games.find((g) => g.gameId === payload.gameId);
 
@@ -148,11 +151,30 @@ export class GameManager {
           where: {
             id: payload.gameId,
           },
+          include: {
+            blackPlayer: true,
+            whitePlayer: true,
+          },
         });
 
         if (!gameFromDb) {
           console.error("game not found");
           return;
+        }
+
+        if (gameFromDb.progress === "INPROGRESS") {
+          player.ws.send(
+            JSON.stringify({
+              type: IN_PROGRESS,
+              payload: {
+                gameId: payload.gameId,
+                gameType: gameFromDb.time,
+                blackPlayer: gameFromDb.blackPlayer.username,
+                whitePlayer: gameFromDb.whitePlayer.username,
+                currentFen: gameFromDb.currentFen,
+              },
+            })
+          );
         }
 
         if (gameFromDb.progress !== "INPROGRESS") {
@@ -161,6 +183,8 @@ export class GameManager {
               type: GAME_OVER,
               payload: {
                 gameId: payload.gameId,
+                blackPlayer: gameFromDb.blackPlayer.username,
+                whitePlayer: gameFromDb.whitePlayer.username,
               },
             })
           );

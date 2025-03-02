@@ -34,8 +34,7 @@ export const ProfileCard = ({
         </div>
       </div>
       <div className=" flex items-center">
-        {time}
-        <Clock time={10} />
+        <Clock time={time} />
       </div>
     </div>
   );
