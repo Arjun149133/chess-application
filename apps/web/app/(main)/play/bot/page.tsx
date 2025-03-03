@@ -1,3 +1,4 @@
+"use client";
 import BotGame from "@components/BotGame";
 import React from "react";
 

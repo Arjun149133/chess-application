@@ -133,14 +133,12 @@ export class Game {
         this.chess.turn() === "w" &&
         player.userId !== this.whitePlayer.userId
       ) {
-        console.log("white player's turn");
         return;
       }
       if (
         this.chess.turn() === "b" &&
         player.userId !== this.blackPlayer.userId
       ) {
-        console.log("black player's turn");
         return;
       }
 

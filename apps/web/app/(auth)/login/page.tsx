@@ -9,7 +9,7 @@ const LoginPage = () => {
     try {
       router.push("/");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   return <AuthForm buttonText="Login" />;

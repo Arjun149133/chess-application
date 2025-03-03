@@ -49,11 +49,9 @@ const AuthForm = ({ buttonText }: { buttonText?: string }) => {
       setLoading(false);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log(error.response?.data.message);
         setError(error.response?.data.message);
       } else {
         setError("An error occurred. Please try again.");
-        console.error(error);
       }
       setLoading(false);
     }

@@ -9,7 +9,6 @@ const useGameFromDb = (gameId: string) => {
     const game = getGameFromDb(gameId);
     game
       .then((data) => {
-        console.log("data", data);
         setBlackPlayerUserName(data.game.blackPlayer.username);
         setWhitePlayerUserName(data.game.whitePlayer.username);
       })

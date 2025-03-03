@@ -1,36 +1,47 @@
 "use client";
-import { Chess, Piece, Square } from "chess.js";
+import { Chess, Square } from "chess.js";
 import { Engine } from "engine/Engine";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Chessboard } from "react-chessboard";
 
 const BotGame = () => {
   const levels = {
-    "Easy 🤓": 2,
-    "Medium 🧐": 8,
-    "Hard 😵": 18,
+    Easy: 2,
+    Medium: 8,
+    Hard: 18,
   };
 
   const engine = useMemo(() => new Engine(), []);
   const game = useMemo(() => new Chess(), []);
   const [gamePosition, setGamePosition] = useState(game.fen());
   const [stockfishLevel, setStockfishLevel] = useState(2);
-  function findBestMove() {
-    engine.evaluatePosition(game.fen(), stockfishLevel);
-    engine.onMessage(({ bestMove }) => {
-      console.log("message", bestMove);
-      if (bestMove) {
-        // In latest chess.js versions you can just write ```game.move(bestMove)```
-        game.move({
-          from: bestMove.substring(0, 2),
-          to: bestMove.substring(2, 4),
-          promotion: bestMove.substring(4, 5),
-        });
-        setGamePosition(game.fen());
-      }
-    });
-  }
-  function onDrop(sourceSquare: Square, targetSquare: Square, piece: string) {
+
+  useEffect(() => {
+    const findBestMove = () => {
+      engine.evaluatePosition(game.fen(), stockfishLevel);
+
+      engine.onMessage(({ bestMove }) => {
+        if (bestMove) {
+          game.move({
+            from: bestMove.substring(0, 2),
+            to: bestMove.substring(2, 4),
+            promotion: bestMove.substring(4, 5),
+          });
+          setGamePosition(game.fen()); // Update game position
+        }
+      });
+    };
+
+    if (game.isGameOver() === false) {
+      findBestMove();
+    }
+  }, [game, stockfishLevel, engine]);
+
+  const onDrop = (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: string
+  ) => {
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,
@@ -38,14 +49,11 @@ const BotGame = () => {
     });
     setGamePosition(game.fen());
 
-    // illegal move
-    if (move === null) return false;
+    if (move === null || game.isGameOver() || game.isDraw()) return false;
 
-    // exit if the game is over
-    if (game.isGameOver() || game.isDraw()) return false;
-    findBestMove();
     return true;
-  }
+  };
+
   return (
     <div>
       <div

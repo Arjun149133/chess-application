@@ -56,7 +56,6 @@ export default function OnlineGameBoard({
           break;
 
         case PLAYER_TIME:
-          console.log("timer", message.payload);
           setTimer({
             whitePlayerTimeRemaining: message.payload.whitePlayerTimeRemaining,
             blackPlayerTimeRemaining: message.payload.blackPlayerTimeRemaining,
@@ -113,7 +112,6 @@ export default function OnlineGameBoard({
 
       return true;
     } catch (error) {
-      console.log(error);
       return false;
     }
   }

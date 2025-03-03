@@ -16,11 +16,9 @@ const useSocket = () => {
 
     socket.onopen = () => {
       setSocket(socket);
-      console.log("Connected to server");
     };
 
     socket.onclose = () => {
-      console.log("Disconnected from server");
       setSocket(null);
     };
 
