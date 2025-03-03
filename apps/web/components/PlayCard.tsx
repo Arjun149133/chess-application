@@ -28,22 +28,28 @@ const PlayCard = ({
       </div>
       {/* play button */}
       <div className="">
-        <Button
-          onClick={() => {
-            socket?.send(
-              JSON.stringify({
-                type: INIT_GAME,
-                payload: {
-                  gameType: gameType,
-                },
-              })
-            );
-          }}
-          className=" w-full"
-          disabled={loading}
-        >
-          <span>Play</span>
-        </Button>
+        {!socket ? (
+          <div className=" flex justify-center items-center text-red-400 text-xl">
+            Login to continue
+          </div>
+        ) : (
+          <Button
+            onClick={() => {
+              socket?.send(
+                JSON.stringify({
+                  type: INIT_GAME,
+                  payload: {
+                    gameType: gameType,
+                  },
+                })
+              );
+            }}
+            className=" w-full"
+            disabled={loading}
+          >
+            <span>Play</span>
+          </Button>
+        )}
       </div>
     </div>
   );

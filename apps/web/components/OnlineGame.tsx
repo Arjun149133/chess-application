@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Chess, Move } from "chess.js";
 import { Chessboard } from "react-chessboard";
-import { MOVE, PLAYER_TIME } from "@lib/messages";
+import { GAME_OVER, MOVE, PLAYER_TIME } from "@lib/messages";
 import useToken from "@hooks/useToken";
-import useTimer from "@hooks/useTimer";
 import { ProfileCard } from "./ProfileCard";
+import GameOverDiaglog from "./GameOverDiaglog";
 
 export default function OnlineGameBoard({
   gameId,
@@ -26,6 +26,12 @@ export default function OnlineGameBoard({
   const [timer, setTimer] = useState({
     whitePlayerTimeRemaining: 0,
     blackPlayerTimeRemaining: 0,
+  });
+  const [gameOverDiaglog, setGameOverDiaglog] = useState(false);
+  const [gameOver, setGameOver] = useState({
+    winnerUsername: "",
+    result: "",
+    progress: "",
   });
 
   useEffect(() => {
@@ -55,6 +61,15 @@ export default function OnlineGameBoard({
             whitePlayerTimeRemaining: message.payload.whitePlayerTimeRemaining,
             blackPlayerTimeRemaining: message.payload.blackPlayerTimeRemaining,
           });
+          break;
+
+        case GAME_OVER:
+          setGameOver({
+            winnerUsername: message.payload.winner,
+            result: message.payload.result,
+            progress: message.payload.progress,
+          });
+          setGameOverDiaglog(true);
           break;
 
         default:
@@ -105,6 +120,12 @@ export default function OnlineGameBoard({
 
   return (
     <div>
+      {gameOverDiaglog && (
+        <GameOverDiaglog
+          setGameOverDiaglog={setGameOverDiaglog}
+          gameOver={gameOver}
+        />
+      )}
       <div className=" w-[500px]">
         <ProfileCard
           username={

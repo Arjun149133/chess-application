@@ -1,15 +1,13 @@
 "use client";
+import LoadingSpinner from "@components/LoadingSpinner";
 import OnlineGameBoard from "@components/OnlineGame";
 import useSocket from "@hooks/useSocket";
-import { IN_PROGRESS, JOIN_GAME, PLAYER_TIME } from "@lib/messages";
-import jwt from "jsonwebtoken";
+import { GAME_OVER, IN_PROGRESS, JOIN_GAME } from "@lib/messages";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const GamePage = () => {
   const [gameId, setGameId] = useState("");
-  const [username, setUsername] = useState("");
-  const [token, setToken] = useState("");
   const socket = useSocket();
   const pathname = usePathname();
   const [blackPlayerUserName, setBlackPlayerUserName] = useState("");
@@ -28,13 +26,6 @@ const GamePage = () => {
 
     const localToken = localStorage.getItem("chessToken");
     if (!localToken) return;
-
-    setToken(localToken);
-    const decodedToken = jwt.decode(localToken) as {
-      username: string;
-      userId: string;
-    };
-    setUsername(decodedToken.username);
 
     socket.send(
       JSON.stringify({
@@ -61,10 +52,21 @@ const GamePage = () => {
         setWhitePlayerUserName(data.payload.whitePlayer);
         setGameFen(data.payload.currentFen);
       }
+
+      if (data.type === GAME_OVER) {
+        setBlackPlayerUserName(data.payload.blackPlayer);
+        setWhitePlayerUserName(data.payload.whitePlayer);
+        setGameFen(data.payload.currentFen);
+      }
     };
   }, [socket]);
 
-  if (!gameFen) return <div>Loading...</div>;
+  if (!gameFen)
+    return (
+      <div className=" flex w-full h-screen justify-center items-center">
+        <LoadingSpinner />
+      </div>
+    );
 
   return (
     <div className=" flex ">
@@ -80,7 +82,7 @@ const GamePage = () => {
         </div>
       </div>
       <div className="flex w-1/2 justify-center items-center h-screen">
-        HISTORY
+        {/* HISTORY */}
       </div>
     </div>
   );

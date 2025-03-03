@@ -133,18 +133,15 @@ export class GameManager {
         const payload = message.payload;
         const game = this.games.find((g) => g.gameId === payload.gameId);
 
-        if (!game) {
-          console.error("game not found");
-          return;
-        }
-
-        if (game.whitePlayer.userId === player.userId) {
-          game.updateWhitePlayer(player);
-        } else if (game.blackPlayer.userId === player.userId) {
-          game.updateBlackPlayer(player);
-        } else {
-          console.log("player not in game");
-          return;
+        if (game) {
+          if (game.whitePlayer.userId === player.userId) {
+            game.updateWhitePlayer(player);
+          } else if (game.blackPlayer.userId === player.userId) {
+            game.updateBlackPlayer(player);
+          } else {
+            console.log("player not in game");
+            return;
+          }
         }
 
         const gameFromDb = await client.game.findUnique({
@@ -185,6 +182,11 @@ export class GameManager {
                 gameId: payload.gameId,
                 blackPlayer: gameFromDb.blackPlayer.username,
                 whitePlayer: gameFromDb.whitePlayer.username,
+                whitePlayerTimeRemaining: gameFromDb.whitePlayerTimeRemaining,
+                blackPlayerTimeRemaining: gameFromDb.blackPlayerTimeRemaining,
+                currentFen: gameFromDb.currentFen,
+                result: gameFromDb.result,
+                progress: gameFromDb.progress,
               },
             })
           );

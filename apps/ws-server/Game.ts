@@ -10,6 +10,7 @@ import {
   INIT_GAME,
   MOVE,
   INVALID_MOVE,
+  GAME_OVER,
 } from "./messages";
 import type { MoveType, User } from "./types";
 import { Chess, Move, type Square } from "chess.js";
@@ -55,7 +56,7 @@ export class Game {
 
       this.broadCast(message);
       this.sendWhitePlayerTimeCount();
-      // this.abondonedGame(this.whitePlayer);
+      this.abondonedGame(this.whitePlayer);
     } catch (error) {
       console.error(error);
     }
@@ -161,10 +162,10 @@ export class Game {
 
       if (this.chess.turn() === "w") {
         this.sendWhitePlayerTimeCount();
-        // this.abondonedGame(this.whitePlayer);
+        this.abondonedGame(this.whitePlayer);
       } else {
         this.sendBlackPlayerTimeCount();
-        // this.abondonedGame(this.blackPlayer);
+        this.abondonedGame(this.blackPlayer);
       }
 
       await this.addMoveToDb(moveResult);
@@ -174,13 +175,13 @@ export class Game {
           await this.gameOver("", GAME_RESULT.DRAW, GAME_PROGRESS.FINISHED);
         } else if (player.userId === this.whitePlayer.userId) {
           await this.gameOver(
-            player.userId,
+            player.username,
             GAME_RESULT.WHITEWIN,
             GAME_PROGRESS.FINISHED
           );
         } else {
           await this.gameOver(
-            player.userId,
+            player.username,
             GAME_RESULT.BLACKWIN,
             GAME_PROGRESS.FINISHED
           );
@@ -196,6 +197,7 @@ export class Game {
         payload: {
           gameId: this.gameId,
           move: moveResult,
+          san: moveResult.san,
         },
       });
       this.broadCast(message);
@@ -214,13 +216,13 @@ export class Game {
   resign(player: User) {
     if (player.userId === this.whitePlayer.userId) {
       this.gameOver(
-        player.userId,
+        player.username,
         GAME_RESULT.BLACKWIN,
         GAME_PROGRESS.PLAYEREXIT
       );
     } else {
       this.gameOver(
-        player.userId,
+        player.username,
         GAME_RESULT.WHITEWIN,
         GAME_PROGRESS.PLAYEREXIT
       );
@@ -271,13 +273,13 @@ export class Game {
     this.abondonedTimer = setTimeout(() => {
       if (player.userId === this.whitePlayer.userId) {
         this.gameOver(
-          player.userId,
+          player.username,
           GAME_RESULT.BLACKWIN,
           GAME_PROGRESS.ABANDONED
         );
       } else {
         this.gameOver(
-          player.userId,
+          player.username,
           GAME_RESULT.WHITEWIN,
           GAME_PROGRESS.ABANDONED
         );
@@ -294,7 +296,7 @@ export class Game {
       this.whitePlayerTimeRemaining -= 1000;
       if (this.whitePlayerTimeRemaining <= 0) {
         this.gameOver(
-          this.blackPlayer.userId,
+          this.blackPlayer.username,
           GAME_RESULT.BLACKWIN,
           GAME_PROGRESS.TIMEUP
         );
@@ -322,7 +324,7 @@ export class Game {
       this.blackPlayerTimeRemaining -= 1000;
       if (this.blackPlayerTimeRemaining <= 0) {
         this.gameOver(
-          this.whitePlayer.userId,
+          this.whitePlayer.username,
           GAME_RESULT.WHITEWIN,
           GAME_PROGRESS.TIMEUP
         );
@@ -342,7 +344,7 @@ export class Game {
   }
 
   private async gameOver(
-    winnerId: string,
+    winnerUsername: string,
     result: GAME_RESULT,
     progress: GAME_PROGRESS
   ) {
@@ -365,10 +367,10 @@ export class Game {
       clearTimeout(this.abondonedTimer);
     }
     const message = JSON.stringify({
-      type: "game_over",
+      type: GAME_OVER,
       payload: {
         gameId: this.gameId,
-        winner: winnerId,
+        winner: winnerUsername,
         progress: progress,
         result: result,
       },
