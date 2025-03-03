@@ -17,7 +17,6 @@ export default function Board() {
   }
 
   function onDrop(sourceSquare: string, targetSquare: string): boolean {
-    console.log("sourceSquare", sourceSquare, targetSquare);
     const move = {
       from: sourceSquare,
       to: targetSquare,
@@ -27,7 +26,6 @@ export default function Board() {
     if (move === null) return false;
     game.move(move);
     setGamePostion(game.fen());
-    console.log("game.fen()", game.fen());
     setTimeout(makeRandomMove, 200);
     return true;
   }

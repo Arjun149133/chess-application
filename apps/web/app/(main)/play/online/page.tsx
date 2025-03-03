@@ -17,14 +17,13 @@ const OnlinePage = () => {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
+      data;
 
       if (data.type === WAITING) {
         setLoading(true);
       }
 
       if (data.type === INIT_GAME) {
-        console.log("Game Started");
         router.push(`/play/online/${data.payload.gameId}`);
         setLoading(false);
       }

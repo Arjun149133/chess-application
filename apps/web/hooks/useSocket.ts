@@ -1,7 +1,8 @@
+import { WS_URL as WS } from "@lib/config";
 import { useEffect, useState } from "react";
 
 const useSocket = () => {
-  const WS_URL = process.env.NEXT_PUBLIC_WS_URL + "?token=";
+  const WS_URL = WS + "?token=";
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [token, setToken] = useState("");
 
@@ -16,11 +17,9 @@ const useSocket = () => {
 
     socket.onopen = () => {
       setSocket(socket);
-      console.log("Connected to server");
     };
 
     socket.onclose = () => {
-      console.log("Disconnected from server");
       setSocket(null);
     };
 

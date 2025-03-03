@@ -39,13 +39,11 @@ const GamePage = () => {
 
   useEffect(() => {
     if (!socket) {
-      console.log("socket not found");
       return;
     }
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
 
       if (data.type === IN_PROGRESS) {
         setBlackPlayerUserName(data.payload.blackPlayer);

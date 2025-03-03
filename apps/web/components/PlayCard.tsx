@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import { INIT_GAME } from "@lib/messages";
+import LoadingSpinner from "./LoadingSpinner";
 
 const PlayCard = ({
   socket,
@@ -11,6 +12,21 @@ const PlayCard = ({
   loading: boolean;
 }) => {
   const [gameType, setGameType] = useState("CLASSICAL");
+  const [tokenLoading, setTokenLoading] = useState(true);
+
+  useEffect(() => {
+    setTokenLoading(true);
+    const token = localStorage.getItem("chessToken");
+
+    const timer = setTimeout(() => {
+      setTokenLoading(false);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <div className=" flex flex-col space-y-4 w-1/2 h-1/2 bg-secondary rounded-2xl p-7 ">
       {/* select game time type*/}
@@ -28,27 +44,35 @@ const PlayCard = ({
       </div>
       {/* play button */}
       <div className="">
-        {!socket ? (
-          <div className=" flex justify-center items-center text-red-400 text-xl">
-            Login to continue
+        {tokenLoading ? (
+          <div className=" flex justify-center items-center">
+            <LoadingSpinner />
           </div>
         ) : (
-          <Button
-            onClick={() => {
-              socket?.send(
-                JSON.stringify({
-                  type: INIT_GAME,
-                  payload: {
-                    gameType: gameType,
-                  },
-                })
-              );
-            }}
-            className=" w-full"
-            disabled={loading}
-          >
-            <span>Play</span>
-          </Button>
+          <>
+            {!socket ? (
+              <div className=" flex justify-center items-center text-red-400 text-xl">
+                Login to continue
+              </div>
+            ) : (
+              <Button
+                onClick={() => {
+                  socket?.send(
+                    JSON.stringify({
+                      type: INIT_GAME,
+                      payload: {
+                        gameType: gameType,
+                      },
+                    })
+                  );
+                }}
+                className=" w-full"
+                disabled={loading}
+              >
+                <span>Play</span>
+              </Button>
+            )}
+          </>
         )}
       </div>
     </div>

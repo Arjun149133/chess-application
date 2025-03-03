@@ -7,6 +7,7 @@ import Input from "./Input";
 import Button from "./Button";
 import LoadingSpinner from "./LoadingSpinner";
 import { useRouter } from "next/navigation";
+import { BACKEND_URL } from "@lib/config";
 
 const AuthForm = ({ buttonText }: { buttonText?: string }) => {
   const [formData, setFormData] = useState({
@@ -31,14 +32,11 @@ const AuthForm = ({ buttonText }: { buttonText?: string }) => {
       let response;
       if (buttonText === "Register") {
         response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+          `${BACKEND_URL}/api/auth/register`,
           formData
         );
       } else {
-        response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-          formData
-        );
+        response = await axios.post(`${BACKEND_URL}/api/auth/login`, formData);
       }
 
       if (!response.data.error) {
@@ -49,7 +47,6 @@ const AuthForm = ({ buttonText }: { buttonText?: string }) => {
       setLoading(false);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log(error.response?.data.message);
         setError(error.response?.data.message);
       } else {
         setError("An error occurred. Please try again.");

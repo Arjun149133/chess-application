@@ -22,7 +22,6 @@ const Sidebar = () => {
         username: string;
         userId: string;
       };
-      console.log(decodedToken);
       setUsername(decodedToken?.username ? decodedToken.username : null);
     }
     setLoading(false);

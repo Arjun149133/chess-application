@@ -34,7 +34,6 @@ export class GameManager {
   private addHandler(player: User) {
     player.ws.on("message", async (msg) => {
       const message = JSON.parse(msg.toString());
-      console.log(message);
       if (message.type === INIT_GAME) {
         const gameType = message.payload.gameType;
         if (!this.pendingGameId.has(gameType)) {
@@ -129,7 +128,6 @@ export class GameManager {
       }
 
       if (message.type === JOIN_GAME) {
-        console.log("join_game");
         const payload = message.payload;
         const game = this.games.find((g) => g.gameId === payload.gameId);
 
@@ -139,7 +137,6 @@ export class GameManager {
           } else if (game.blackPlayer.userId === player.userId) {
             game.updateBlackPlayer(player);
           } else {
-            console.log("player not in game");
             return;
           }
         }
