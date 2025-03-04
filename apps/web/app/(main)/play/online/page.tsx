@@ -3,13 +3,14 @@ import LoadingSpinner from "@components/LoadingSpinner";
 import PlayCard from "@components/PlayCard";
 import { ProfileCard } from "@components/ProfileCard";
 import useSocket from "@hooks/useSocket";
-import { INIT_GAME, WAITING } from "@lib/messages";
+import { INIT_GAME, NO_PLAYER_AVAILABLE, WAITING } from "@lib/messages";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const OnlinePage = () => {
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const router = useRouter();
   const socket = useSocket();
   useEffect(() => {
@@ -26,6 +27,11 @@ const OnlinePage = () => {
       if (data.type === INIT_GAME) {
         router.push(`/play/online/${data.payload.gameId}`);
         setLoading(false);
+      }
+
+      if (data.type === NO_PLAYER_AVAILABLE) {
+        setLoading(false);
+        setMessage("No player available at the moment, Please try again later");
       }
     };
   }, [socket]);
@@ -56,7 +62,7 @@ const OnlinePage = () => {
         </div>
       </div>
       <div className="flex w-1/2 justify-center items-center h-screen">
-        <PlayCard socket={socket} loading={loading} />
+        <PlayCard socket={socket} loading={loading} message={message} />
       </div>
     </div>
   );

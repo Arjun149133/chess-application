@@ -7,16 +7,22 @@ import LoadingSpinner from "./LoadingSpinner";
 const PlayCard = ({
   socket,
   loading,
+  message,
 }: {
   socket?: WebSocket | null;
   loading: boolean;
+  message?: string;
 }) => {
   const [gameType, setGameType] = useState("CLASSICAL");
   const [tokenLoading, setTokenLoading] = useState(true);
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     setTokenLoading(true);
     const token = localStorage.getItem("chessToken");
+    if (token) {
+      setToken(token);
+    }
 
     const timer = setTimeout(() => {
       setTokenLoading(false);
@@ -50,27 +56,32 @@ const PlayCard = ({
           </div>
         ) : (
           <>
-            {!socket ? (
+            {!token ? (
               <div className=" flex justify-center items-center text-red-400 text-xl">
                 Login to continue
               </div>
             ) : (
-              <Button
-                onClick={() => {
-                  socket?.send(
-                    JSON.stringify({
-                      type: INIT_GAME,
-                      payload: {
-                        gameType: gameType,
-                      },
-                    })
-                  );
-                }}
-                className=" w-full"
-                disabled={loading}
-              >
-                <span>Play</span>
-              </Button>
+              <div>
+                <Button
+                  onClick={() => {
+                    socket?.send(
+                      JSON.stringify({
+                        type: INIT_GAME,
+                        payload: {
+                          gameType: gameType,
+                        },
+                      })
+                    );
+                  }}
+                  className=" w-full"
+                  disabled={loading}
+                >
+                  <span>Play</span>
+                </Button>
+                {message && (
+                  <div className=" text-red-400 text-center">{message}</div>
+                )}
+              </div>
             )}
           </>
         )}

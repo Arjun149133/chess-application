@@ -9,6 +9,7 @@ import {
   INIT_GAME,
   JOIN_GAME,
   MOVE,
+  NO_PLAYER_AVAILABLE,
   OFFER_DRAW,
   RESIGN,
   WAITING,
@@ -20,6 +21,7 @@ export class GameManager {
   private games: Game[] = [];
   private players: User[] = [];
   private pendingGameId: Map<GAME_TYPE, string | null> = new Map();
+  private timer: ReturnType<typeof setTimeout> | null = null;
   constructor() {
     this.games = [];
     this.players = [];
@@ -46,6 +48,15 @@ export class GameManager {
               },
             })
           );
+
+          if (this.timer) {
+            clearTimeout(this.timer);
+          }
+
+          this.timer = setTimeout(() => {
+            this.pendingGameId.delete(gameType);
+            player.ws.send(JSON.stringify({ type: NO_PLAYER_AVAILABLE }));
+          }, 60000);
         } else {
           const whitePlayerId = this.pendingGameId.get(gameType);
           if (whitePlayerId) {
