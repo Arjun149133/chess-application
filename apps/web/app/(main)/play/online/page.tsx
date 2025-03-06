@@ -24,7 +24,6 @@ const OnlinePage = () => {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
 
       if (data.type === PLAYERS_ONLINE) {
         setPlayersOnline(data.payload.playersOnline);
@@ -70,11 +69,13 @@ const OnlinePage = () => {
         <div className=" w-[500px]">
           <ProfileCard username="You" />
         </div>
-        <div className="">
-          <span className=" text-green-500 text-lg">
-            Players Online: {playersOnline}
-          </span>
-        </div>
+        {playersOnline > 0 && (
+          <div className="">
+            <span className=" text-green-500 text-lg">
+              Players Online: {playersOnline}
+            </span>
+          </div>
+        )}
       </div>
       <div className="flex w-1/2 justify-center items-center h-screen">
         <PlayCard socket={socket} loading={loading} message={message} />

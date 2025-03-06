@@ -9,6 +9,7 @@
       "@utils/*": ["utils/*"],
       "@hooks/*": ["hooks/*"],
       "@lib/*": ["lib/*"],
+      "@stockfish/*": ["stockfish/*"],
     },
     "plugins": [
       {
