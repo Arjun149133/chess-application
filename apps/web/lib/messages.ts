@@ -33,3 +33,5 @@ export const INVALID_MOVE: string = "invalid_move";
 export const GAME_OVER: string = "game_over";
 export const JOIN_GAME: string = "join_game";
 export const IN_PROGRESS: string = "in_progress";
+export const NO_PLAYER_AVAILABLE: string = "no_player_available";
+export const PLAYERS_ONLINE: string = "players_online";

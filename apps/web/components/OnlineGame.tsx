@@ -2,7 +2,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Chess, Move } from "chess.js";
 import { Chessboard } from "react-chessboard";
-import { GAME_OVER, MOVE, PLAYER_TIME } from "@lib/messages";
+import {
+  ACCEPT_DRAW,
+  DECLINE_DRAW,
+  DRAW,
+  GAME_OVER,
+  MOVE,
+  OFFER_DRAW,
+  PLAYER_TIME,
+} from "@lib/messages";
 import useToken from "@hooks/useToken";
 import { ProfileCard } from "./ProfileCard";
 import GameOverDiaglog from "./GameOverDiaglog";
@@ -13,12 +21,14 @@ export default function OnlineGameBoard({
   blackPlayerUserName,
   socket,
   gameFen,
+  setMoveHistory,
 }: {
   gameId: string;
   whitePlayerUserName: string;
   blackPlayerUserName: string;
   socket: WebSocket | null;
   gameFen: string;
+  setMoveHistory: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
   const game = useMemo(() => new Chess(gameFen), []);
   const [gamePosition, setGamePostion] = useState<string>(gameFen);
@@ -33,15 +43,18 @@ export default function OnlineGameBoard({
     result: "",
     progress: "",
   });
+  const [drawOffered, setDrawOffered] = useState(false);
 
   useEffect(() => {
     if (!socket) return;
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
+
       switch (message.type) {
         case MOVE:
           const move = message.payload.move;
+          setMoveHistory((prev) => [...prev, message.payload.san]);
 
           if (game.get(move.from) === undefined) {
             break;
@@ -69,6 +82,12 @@ export default function OnlineGameBoard({
             progress: message.payload.progress,
           });
           setGameOverDiaglog(true);
+          break;
+
+        case DRAW:
+          if (message.payload.action === OFFER_DRAW) {
+            setDrawOffered(true);
+          }
           break;
 
         default:
@@ -117,12 +136,53 @@ export default function OnlineGameBoard({
   }
 
   return (
-    <div>
+    <div className=" relative">
       {gameOverDiaglog && (
         <GameOverDiaglog
           setGameOverDiaglog={setGameOverDiaglog}
           gameOver={gameOver}
         />
+      )}
+      {drawOffered && (
+        <div className=" absolute top-0 left-1/2 -translate-x-1/2 bg-secondary/50 p-2 rounded-lg">
+          <span>Draw?</span>
+          <div className=" flex justify-center items-center">
+            <button
+              onClick={() => {
+                socket?.send(
+                  JSON.stringify({
+                    type: DRAW,
+                    payload: {
+                      gameId: gameId,
+                      action: ACCEPT_DRAW,
+                    },
+                  })
+                );
+                setDrawOffered(false);
+              }}
+              className=" bg-green-500 text-white px-4 py-1 m-2 rounded cursor-pointer"
+            >
+              Accept
+            </button>
+            <button
+              onClick={() => {
+                socket?.send(
+                  JSON.stringify({
+                    type: DRAW,
+                    payload: {
+                      gameId: gameId,
+                      action: DECLINE_DRAW,
+                    },
+                  })
+                );
+                setDrawOffered(false);
+              }}
+              className=" bg-red-500 text-white px-4 py-1 m-2 rounded cursor-pointer"
+            >
+              Decline
+            </button>
+          </div>
+        </div>
       )}
       <div className=" w-[500px]">
         <ProfileCard

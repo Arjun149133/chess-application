@@ -19,6 +19,7 @@ wss.on("connection", function connection(ws, req) {
   }
 
   gameManager.addPlayer(user);
+  gameManager.sendPlayersOnline(user);
 
   ws.on("close", () => {
     gameManager.removePlayer(user);

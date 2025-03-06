@@ -70,6 +70,10 @@ export class Game {
     this.blackPlayer = player;
   }
 
+  chessHistory() {
+    return this.chess.history();
+  }
+
   async addGameToDb() {
     try {
       await client.game.create({
@@ -110,6 +114,7 @@ export class Game {
             piece: move.piece,
             captured: move.captured,
             promotion: move.promotion,
+            san: move.san,
           },
         }),
 
@@ -196,6 +201,7 @@ export class Game {
           gameId: this.gameId,
           move: moveResult,
           san: moveResult.san,
+          moves: this.chess.history(),
         },
       });
       this.broadCast(message);
@@ -233,7 +239,7 @@ export class Game {
       payload: {
         gameId: this.gameId,
         action: OFFER_DRAW,
-        player: player.userId,
+        player: player.username,
       },
     });
     if (player.userId === this.whitePlayer.userId) {
