@@ -9,28 +9,40 @@ import {
   INIT_GAME,
   JOIN_GAME,
   MOVE,
-  NO_PLAYER_AVAILABLE,
   OFFER_DRAW,
   RESIGN,
   WAITING,
   type GAME_TYPE,
 } from "./messages";
 import type { User } from "./types";
+import { PlayerTimer } from "./PlayerTimer";
 
 export class GameManager {
   private games: Game[] = [];
   private players: User[] = [];
   private pendingGameId: Map<GAME_TYPE, string | null> = new Map();
-  private timer: ReturnType<typeof setTimeout> | null = null;
+  private playerTimer: PlayerTimer;
+
   constructor() {
     this.games = [];
     this.players = [];
     this.pendingGameId = new Map();
+    this.playerTimer = new PlayerTimer(this.players.length, this.pendingGameId);
   }
 
   addPlayer(player: User) {
     this.players.push(player);
     this.addHandler(player);
+    this.playerTimer.incrementPlayerCount();
+  }
+
+  removePlayer(player: User) {
+    this.players = this.players.filter((p) => p.userId !== player.userId);
+    this.playerTimer.decrementPlayerCount();
+  }
+
+  sendPlayersOnline(player: User) {
+    this.playerTimer.playersOnline(player);
   }
 
   private addHandler(player: User) {
@@ -49,14 +61,7 @@ export class GameManager {
             })
           );
 
-          if (this.timer) {
-            clearTimeout(this.timer);
-          }
-
-          this.timer = setTimeout(() => {
-            this.pendingGameId.delete(gameType);
-            player.ws.send(JSON.stringify({ type: NO_PLAYER_AVAILABLE }));
-          }, 60000);
+          this.playerTimer.stopSearching(gameType, player);
         } else {
           const whitePlayerId = this.pendingGameId.get(gameType);
           if (whitePlayerId) {
@@ -82,6 +87,7 @@ export class GameManager {
             await game.initGame();
             this.games.push(game);
             this.pendingGameId.delete(gameType);
+            this.playerTimer.clearTimeInterval();
           } else {
             this.pendingGameId.set(gameType, player.userId);
             player.ws.send(
@@ -92,6 +98,7 @@ export class GameManager {
                 },
               })
             );
+            this.playerTimer.stopSearching(gameType, player);
           }
         }
       }
@@ -143,6 +150,7 @@ export class GameManager {
         const game = this.games.find((g) => g.gameId === payload.gameId);
 
         if (game) {
+          this.playerTimer.clearTimeInterval();
           if (game.whitePlayer.userId === player.userId) {
             game.updateWhitePlayer(player);
           } else if (game.blackPlayer.userId === player.userId) {
@@ -177,6 +185,7 @@ export class GameManager {
                 blackPlayer: gameFromDb.blackPlayer.username,
                 whitePlayer: gameFromDb.whitePlayer.username,
                 currentFen: gameFromDb.currentFen,
+                history: game?.chessHistory(),
               },
             })
           );
@@ -201,9 +210,5 @@ export class GameManager {
         }
       }
     });
-  }
-
-  removePlayer(player: User) {
-    this.players = this.players.filter((p) => p.userId !== player.userId);
   }
 }

@@ -3,7 +3,12 @@ import LoadingSpinner from "@components/LoadingSpinner";
 import PlayCard from "@components/PlayCard";
 import { ProfileCard } from "@components/ProfileCard";
 import useSocket from "@hooks/useSocket";
-import { INIT_GAME, NO_PLAYER_AVAILABLE, WAITING } from "@lib/messages";
+import {
+  INIT_GAME,
+  NO_PLAYER_AVAILABLE,
+  PLAYERS_ONLINE,
+  WAITING,
+} from "@lib/messages";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,6 +16,7 @@ import { useEffect, useState } from "react";
 const OnlinePage = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [playersOnline, setPlayersOnline] = useState(0);
   const router = useRouter();
   const socket = useSocket();
   useEffect(() => {
@@ -18,7 +24,11 @@ const OnlinePage = () => {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      data;
+      console.log(data);
+
+      if (data.type === PLAYERS_ONLINE) {
+        setPlayersOnline(data.payload.playersOnline);
+      }
 
       if (data.type === WAITING) {
         setLoading(true);
@@ -59,6 +69,11 @@ const OnlinePage = () => {
         </div>
         <div className=" w-[500px]">
           <ProfileCard username="You" />
+        </div>
+        <div className="">
+          <span className=" text-green-500 text-lg">
+            Players Online: {playersOnline}
+          </span>
         </div>
       </div>
       <div className="flex w-1/2 justify-center items-center h-screen">
