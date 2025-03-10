@@ -28,37 +28,44 @@ const Sidebar = () => {
   }, [token]);
 
   return (
-    <div className="w-1/9 h-screen bg-secondary">
-      <div className=" flex justify-center h-1/2 pt-7">
-        <h1 className=" font-bold text-xl">Play Chess</h1>
+    <div className="flex lg:flex-col lg:w-1/9 lg:h-screen bg-secondary justify-between px-2 lg:mr-4">
+      <div className=" flex justify-center items-center lg:pt-7">
+        <h1 className=" font-bold xl:text-xl sm:text-sm md:text-md">
+          Play Chess
+        </h1>
       </div>
-      <div className=" flex flex-col items-center justify-end h-1/2 p-3 pb-7 space-y-4">
+      <div className=" flex lg:flex-col items-center justify-end h-1/2 p-3 lg:pb-7 space-y-4">
         {loading ? (
           <LoadingSpinner />
         ) : (
           <div>
             {token ? (
-              <div className=" space-y-2">
-                <div className=" text-lg flex capitalize justify-center">
+              <div className=" flex lg:flex-col justify-center items-center space-x-2 lg:space-y-2">
+                <div className=" xl:text-xl sm:text-sm md:text-md flex capitalize ">
                   {username}
                 </div>
-                <Button
-                  onClick={() => {
-                    localStorage.removeItem("chessToken");
-                    setToken(null);
-                  }}
-                  className=" h-12 w-full"
-                >
-                  Log out
-                </Button>
+                <div>
+                  <Button
+                    onClick={() => {
+                      localStorage.removeItem("chessToken");
+                      setToken(null);
+                    }}
+                    className=" xl:h-12 lg:h-10 w-full"
+                  >
+                    Log out
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className=" flex flex-col space-y-2 p-2">
+              <div className=" flex lg:flex-col lg:space-y-2 lg:p-2 space-x-2">
                 <Link className=" w-full " href={"/login"}>
-                  <Button className=" h-12 w-full">Login</Button>
+                  <Button className="  xl:h-12 lg:h-8 w-full">Login</Button>
                 </Link>
                 <Link className=" w-full" href={"/register"}>
-                  <Button variant="secondary" className=" h-12 w-full">
+                  <Button
+                    variant="secondary"
+                    className=" xl:h-12 lg:h-8 w-full"
+                  >
                     Register
                   </Button>
                 </Link>

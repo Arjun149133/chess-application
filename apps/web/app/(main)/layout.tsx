@@ -6,9 +6,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className=" flex ">
+    <div className=" flex flex-col lg:flex-row">
       <Sidebar />
-      <div className="w-8/9 h-screen">{children}</div>
+      <div className="lg:w-8/9 lg:h-screen">{children}</div>
     </div>
   );
 }

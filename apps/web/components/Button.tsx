@@ -5,7 +5,7 @@ interface ButtonProps {
   onClick?: () => void; // Function to call when the button is clicked
   className?: string; // Optional custom class names
   variant?: "primary" | "secondary"; // Button color variants
-  size?: "sm" | "md" | "lg"; // Button size variants
+  size?: "sm" | "md" | "lg" | "default"; // Button size variants
   disabled?: boolean; // Whether the button is disabled
 }
 
@@ -14,7 +14,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   className = "",
   variant = "primary",
-  size = "md",
+  size = "default",
   disabled = false,
 }) => {
   // Define variant styles using black and white colors
@@ -30,6 +30,7 @@ const Button: React.FC<ButtonProps> = ({
     sm: "px-4 py-2 text-sm",
     md: "px-6 py-3 text-base",
     lg: "px-8 py-4 text-lg",
+    default: " px-2 p-1 sm:text-sm md:text-sm lg:text-md xl:text-lg text-wrap",
   };
 
   // Combine classes for button

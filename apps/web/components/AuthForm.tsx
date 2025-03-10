@@ -56,6 +56,28 @@ const AuthForm = ({ buttonText }: { buttonText?: string }) => {
     }
   };
 
+  const guestLogin = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.post(`${BACKEND_URL}/api/auth/guest`);
+      if (!res.data.error) {
+        localStorage.setItem("chessToken", res.data.token);
+        router.push("/play/online");
+        setError("");
+      }
+      router.push("/play/online");
+      setLoading(false);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data.message);
+      } else {
+        setError("An error occurred. Please try again.");
+        console.error(error);
+      }
+      setLoading(false);
+    }
+  };
+
   return (
     <div className=" flex flex-col items-center h-screen pt-7 ">
       <div className=" grid grid-cols-12 w-full my-4">
@@ -70,7 +92,7 @@ const AuthForm = ({ buttonText }: { buttonText?: string }) => {
             />
           </Link>
         </div>
-        <span className=" col-span-7 text-4xl pl-20">chess</span>
+        <h1 className=" col-span-7 text-4xl lg:pl-20">chess</h1>
       </div>
       <div className=" flex flex-col justify-center items-center">
         <h1 className=" text-2xl my-2">Enter your credentials.</h1>
@@ -91,7 +113,17 @@ const AuthForm = ({ buttonText }: { buttonText?: string }) => {
 
         {error && <div className=" text-red-500 text-sm my-2">{error}</div>}
 
-        <Button onClick={handleSubmit} className=" md:w-72 my-2 py-4">
+        <button
+          className=" text-blue-500 text-md my-2 cursor-pointer"
+          onClick={guestLogin}
+        >
+          Login as Guest
+        </button>
+
+        <Button
+          onClick={handleSubmit}
+          className=" md:w-72 my-2 lg:py-4 py-1 px-2"
+        >
           {loading ? <LoadingSpinner /> : buttonText}
         </Button>
         <div className=" space-x-2">

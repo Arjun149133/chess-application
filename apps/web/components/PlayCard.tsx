@@ -61,27 +61,36 @@ const PlayCard = ({
                 Login to continue
               </div>
             ) : (
-              <div>
-                <Button
-                  onClick={() => {
-                    socket?.send(
-                      JSON.stringify({
-                        type: INIT_GAME,
-                        payload: {
-                          gameType: gameType,
-                        },
-                      })
-                    );
-                  }}
-                  className=" w-full"
-                  disabled={loading}
-                >
-                  <span>Play</span>
-                </Button>
-                {message && (
-                  <div className=" text-red-400 text-center">{message}</div>
-                )}
-              </div>
+              <>
+                <div>
+                  <Button
+                    onClick={() => {
+                      socket?.send(
+                        JSON.stringify({
+                          type: INIT_GAME,
+                          payload: {
+                            gameType: gameType,
+                          },
+                        })
+                      );
+                    }}
+                    className=" w-full"
+                    disabled={loading}
+                  >
+                    <span>Play</span>
+                  </Button>
+                  {message && (
+                    <div className=" text-red-400 text-center">{message}</div>
+                  )}
+                </div>
+                <div>
+                  {loading ? (
+                    <div className=" lg:hidden flex w-full items-center justify-center animate-pulse text-yellow-200 mt-2">
+                      <span>Searching for a player</span>
+                    </div>
+                  ) : null}{" "}
+                </div>
+              </>
             )}
           </>
         )}

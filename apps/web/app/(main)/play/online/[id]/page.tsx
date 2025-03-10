@@ -84,8 +84,8 @@ const GamePage = () => {
     );
 
   return (
-    <div className=" flex ">
-      <div className="flex flex-col w-1/2 justify-center items-center h-screen">
+    <div className=" flex flex-col lg:flex-row ">
+      <div className="flex flex-col lg:w-1/2 justify-center items-center h-screen">
         <div>
           <OnlineGameBoard
             gameId={gameId}
@@ -97,7 +97,7 @@ const GamePage = () => {
           />
         </div>
       </div>
-      <div className="flex flex-col w-1/2 justify-center items-center h-screen bg-secondary">
+      <div className="flex flex-col lg:w-1/2 justify-center items-center h-screen bg-secondary">
         <div className=" flex flex-col justify-between bg-primary rounded-xl w-1/2 h-1/2 p-2">
           <div className="flex flex-col h-[80%]">
             <h1 className=" flex justify-center items-center text-lg font-bold">

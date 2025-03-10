@@ -46,8 +46,8 @@ const OnlinePage = () => {
   }, [socket]);
 
   return (
-    <div className=" flex ">
-      <div className="flex flex-col w-1/2 justify-center items-center h-screen">
+    <div className=" flex flex-col lg:flex-row">
+      <div className="hidden lg:flex lg:flex-col w-1/2 justify-center items-center h-screen">
         <div className=" w-[500px]">
           <ProfileCard username="Opponent" />
         </div>
@@ -77,8 +77,15 @@ const OnlinePage = () => {
           </div>
         )}
       </div>
-      <div className="flex w-1/2 justify-center items-center h-screen">
+      <div className="flex flex-col space-y-2 lg:w-1/2 justify-center items-center h-[450px] lg:h-screen">
         <PlayCard socket={socket} loading={loading} message={message} />
+        {playersOnline > 0 && (
+          <div className=" lg:hidden">
+            <span className=" text-green-500 text-lg">
+              Players Online: {playersOnline}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

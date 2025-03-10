@@ -106,4 +106,67 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/guest", async (req, res) => {
+  const username = "guest" + Math.floor(Math.random() * 1000000);
+  const password = "password";
+
+  try {
+    const user = await client.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const result = await client.user.create({
+        data: {
+          username,
+          password: hashedPassword,
+        },
+      });
+
+      const token = jwt.sign(
+        {
+          username: result.username,
+          userId: result.id,
+        },
+        process.env.JWT_SECRET!
+      );
+
+      res.status(201).json({
+        message: "Guest user created successfully",
+        token,
+      });
+    } else {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        res.status(401).json({
+          message: "Invalid password",
+        });
+        return;
+      }
+
+      const token = jwt.sign(
+        {
+          username: user.username,
+          userId: user.id,
+        },
+        process.env.JWT_SECRET!
+      );
+
+      res.status(200).json({
+        message: "Login successful",
+        token,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+});
+
 export default router;

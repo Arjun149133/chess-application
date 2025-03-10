@@ -24,7 +24,7 @@ const GameOverDiaglog = ({
         <h2 className="text-xl font-bold">Winner: {gameOver.winnerUsername}</h2>
         <h2 className="text-xl font-bold">Result: {gameOver.result}</h2>
         <h4 className="text-xl font-bold">Progress: {gameOver.progress}</h4>
-        <Button className="mt-4">Play Again</Button>
+        {/* <Button className="mt-4">Play Again</Button> */}
       </div>
     </div>
   );
