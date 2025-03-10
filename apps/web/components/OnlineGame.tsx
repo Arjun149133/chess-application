@@ -37,7 +37,7 @@ export default function OnlineGameBoard({
   setWhitePlayerUserName: React.Dispatch<React.SetStateAction<string>>;
   setBlackPlayerUserName: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const game = useMemo(() => new Chess(gameFen), [gameFen]);
+  const [game, setGame] = useState(new Chess(gameFen));
   const [gamePosition, setGamePostion] = useState<string>(gameFen);
   const { username } = useToken();
   const [timer, setTimer] = useState({
