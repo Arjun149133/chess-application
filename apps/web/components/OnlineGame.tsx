@@ -37,8 +37,8 @@ export default function OnlineGameBoard({
   setWhitePlayerUserName: React.Dispatch<React.SetStateAction<string>>;
   setBlackPlayerUserName: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const [game, setGame] = useState(new Chess(gameFen));
-  const [gamePosition, setGamePostion] = useState<string>(gameFen);
+  const game = useMemo(() => new Chess(gameFen), [gameFen]);
+  const [gamePosition, setGamePostion] = useState<string>(game.fen());
   const { username } = useToken();
   const [timer, setTimer] = useState({
     whitePlayerTimeRemaining: 0,
@@ -54,6 +54,9 @@ export default function OnlineGameBoard({
 
   useEffect(() => {
     if (!socket) return;
+    console.log("gameFen", gameFen);
+    console.log("game", game.fen());
+    setGamePostion(game.fen());
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
