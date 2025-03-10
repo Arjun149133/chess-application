@@ -62,10 +62,11 @@ const GamePage = () => {
       const data = JSON.parse(event.data);
 
       if (data.type === IN_PROGRESS) {
+        console.log("in_outside", data.payload);
         setBlackPlayerUserName(data.payload.blackPlayer);
         setWhitePlayerUserName(data.payload.whitePlayer);
         setGameFen(data.payload.currentFen);
-        setMoveHistory(data.payload.moveHistory ?? []);
+        setMoveHistory(data.payload.history ?? []);
       }
 
       if (data.type === GAME_OVER) {
@@ -94,6 +95,9 @@ const GamePage = () => {
             blackPlayerUserName={blackPlayerUserName}
             gameFen={gameFen}
             setMoveHistory={setMoveHistory}
+            setGameFen={setGameFen}
+            setWhitePlayerUserName={setWhitePlayerUserName}
+            setBlackPlayerUserName={setBlackPlayerUserName}
           />
         </div>
       </div>

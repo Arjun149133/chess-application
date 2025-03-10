@@ -7,6 +7,7 @@ import {
   DECLINE_DRAW,
   DRAW,
   GAME_OVER,
+  IN_PROGRESS,
   MOVE,
   OFFER_DRAW,
   PLAYER_TIME,
@@ -22,6 +23,9 @@ export default function OnlineGameBoard({
   socket,
   gameFen,
   setMoveHistory,
+  setGameFen,
+  setWhitePlayerUserName,
+  setBlackPlayerUserName,
 }: {
   gameId: string;
   whitePlayerUserName: string;
@@ -29,6 +33,9 @@ export default function OnlineGameBoard({
   socket: WebSocket | null;
   gameFen: string;
   setMoveHistory: React.Dispatch<React.SetStateAction<string[]>>;
+  setGameFen: React.Dispatch<React.SetStateAction<string>>;
+  setWhitePlayerUserName: React.Dispatch<React.SetStateAction<string>>;
+  setBlackPlayerUserName: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const game = useMemo(() => new Chess(gameFen), []);
   const [gamePosition, setGamePostion] = useState<string>(gameFen);
@@ -88,6 +95,14 @@ export default function OnlineGameBoard({
           if (message.payload.action === OFFER_DRAW) {
             setDrawOffered(true);
           }
+          break;
+
+        case IN_PROGRESS:
+          console.log("in_inside", message.payload);
+          setBlackPlayerUserName(message.payload.blackPlayer);
+          setWhitePlayerUserName(message.payload.whitePlayer);
+          setGameFen(message.payload.currentFen);
+          setMoveHistory(message.payload.history ?? []);
           break;
 
         default:
