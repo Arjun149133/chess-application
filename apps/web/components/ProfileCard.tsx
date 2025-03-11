@@ -26,7 +26,7 @@ export const ProfileCard = ({
             width={50}
             height={50}
             alt="opponent"
-            className=" cursor-pointer"
+            className=" w-fit lg:w-[50px]"
           />
         </div>
         <div>

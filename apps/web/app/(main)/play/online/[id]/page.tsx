@@ -23,6 +23,10 @@ const GamePage = () => {
   const [gameFen, setGameFen] = useState("");
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [timer, setTimer] = useState({
+    whitePlayerTimeRemaining: 0,
+    blackPlayerTimeRemaining: 0,
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -62,7 +66,6 @@ const GamePage = () => {
       const data = JSON.parse(event.data);
 
       if (data.type === IN_PROGRESS) {
-        console.log("in_outside", data.payload);
         setBlackPlayerUserName(data.payload.blackPlayer);
         setWhitePlayerUserName(data.payload.whitePlayer);
         setGameFen(data.payload.currentFen);
@@ -73,6 +76,11 @@ const GamePage = () => {
         setBlackPlayerUserName(data.payload.blackPlayer);
         setWhitePlayerUserName(data.payload.whitePlayer);
         setGameFen(data.payload.currentFen);
+        setMoveHistory(JSON.parse(data.payload.history));
+        setTimer({
+          whitePlayerTimeRemaining: data.payload.whitePlayerTimeRemaining,
+          blackPlayerTimeRemaining: data.payload.blackPlayerTimeRemaining,
+        });
       }
     };
   }, [socket]);
@@ -86,8 +94,8 @@ const GamePage = () => {
 
   return (
     <div className=" flex flex-col lg:flex-row ">
-      <div className="flex flex-col lg:w-1/2 justify-center items-center h-screen">
-        <div>
+      <div className="flex flex-col lg:w-full xl:w-1/2 justify-center items-center lg:h-screen h-full">
+        <div className=" w-[70vw] max-w-[70vh] m-auto">
           <OnlineGameBoard
             gameId={gameId}
             socket={socket}
@@ -95,14 +103,13 @@ const GamePage = () => {
             blackPlayerUserName={blackPlayerUserName}
             gameFen={gameFen}
             setMoveHistory={setMoveHistory}
-            setGameFen={setGameFen}
-            setWhitePlayerUserName={setWhitePlayerUserName}
-            setBlackPlayerUserName={setBlackPlayerUserName}
+            whitePlayerTimeRemaining={timer.whitePlayerTimeRemaining}
+            blackPlayerTimeRemaining={timer.blackPlayerTimeRemaining}
           />
         </div>
       </div>
-      <div className="flex flex-col lg:w-1/2 justify-center items-center h-screen bg-secondary">
-        <div className=" flex flex-col justify-between bg-primary rounded-xl w-1/2 h-1/2 p-2">
+      <div className="flex flex-col lg:w-full xl:w-1/2 justify-center items-center lg:h-screen h-full p-2 lg:p-0 bg-secondary">
+        <div className=" flex flex-col justify-between bg-primary rounded-xl w-[80%] h-72 lg:w-1/2 lg:h-1/2 p-2">
           <div className="flex flex-col h-[80%]">
             <h1 className=" flex justify-center items-center text-lg font-bold">
               History

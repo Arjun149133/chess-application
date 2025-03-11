@@ -361,6 +361,7 @@ export class Game {
         result: result,
         blackPlayerTimeRemaining: this.blackPlayerTimeRemaining,
         whitePlayerTimeRemaining: this.whitePlayerTimeRemaining,
+        history: JSON.stringify(this.chess.history()),
       },
     });
 

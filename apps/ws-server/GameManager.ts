@@ -204,6 +204,7 @@ export class GameManager {
                 currentFen: gameFromDb.currentFen,
                 result: gameFromDb.result,
                 progress: gameFromDb.progress,
+                history: gameFromDb.history,
               },
             })
           );

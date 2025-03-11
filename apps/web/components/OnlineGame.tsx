@@ -23,9 +23,8 @@ export default function OnlineGameBoard({
   socket,
   gameFen,
   setMoveHistory,
-  setGameFen,
-  setWhitePlayerUserName,
-  setBlackPlayerUserName,
+  whitePlayerTimeRemaining,
+  blackPlayerTimeRemaining,
 }: {
   gameId: string;
   whitePlayerUserName: string;
@@ -33,16 +32,15 @@ export default function OnlineGameBoard({
   socket: WebSocket | null;
   gameFen: string;
   setMoveHistory: React.Dispatch<React.SetStateAction<string[]>>;
-  setGameFen: React.Dispatch<React.SetStateAction<string>>;
-  setWhitePlayerUserName: React.Dispatch<React.SetStateAction<string>>;
-  setBlackPlayerUserName: React.Dispatch<React.SetStateAction<string>>;
+  whitePlayerTimeRemaining?: number;
+  blackPlayerTimeRemaining?: number;
 }) {
   const game = useMemo(() => new Chess(gameFen), [gameFen]);
   const [gamePosition, setGamePostion] = useState<string>(game.fen());
   const { username } = useToken();
   const [timer, setTimer] = useState({
-    whitePlayerTimeRemaining: 0,
-    blackPlayerTimeRemaining: 0,
+    whitePlayerTimeRemaining: whitePlayerTimeRemaining ?? 0,
+    blackPlayerTimeRemaining: blackPlayerTimeRemaining ?? 0,
   });
   const [gameOverDiaglog, setGameOverDiaglog] = useState(false);
   const [gameOver, setGameOver] = useState({
@@ -54,8 +52,6 @@ export default function OnlineGameBoard({
 
   useEffect(() => {
     if (!socket) return;
-    console.log("gameFen", gameFen);
-    console.log("game", game.fen());
     setGamePostion(game.fen());
 
     socket.onmessage = (event) => {
@@ -98,14 +94,6 @@ export default function OnlineGameBoard({
           if (message.payload.action === OFFER_DRAW) {
             setDrawOffered(true);
           }
-          break;
-
-        case IN_PROGRESS:
-          console.log("in_inside", message.payload);
-          setBlackPlayerUserName(message.payload.blackPlayer);
-          setWhitePlayerUserName(message.payload.whitePlayer);
-          setGameFen(message.payload.currentFen);
-          setMoveHistory(message.payload.history ?? []);
           break;
 
         default:
@@ -202,7 +190,7 @@ export default function OnlineGameBoard({
           </div>
         </div>
       )}
-      <div className=" w-[500px]">
+      <div className="w-full">
         <ProfileCard
           username={
             username === whitePlayerUserName
@@ -216,13 +204,16 @@ export default function OnlineGameBoard({
           }
         />
       </div>
-      <Chessboard
-        position={gamePosition}
-        onPieceDrop={onDrop}
-        boardWidth={500}
-        boardOrientation={whitePlayerUserName === username ? "white" : "black"}
-      />
-      <div className=" w-[500px]">
+      <div className=" ">
+        <Chessboard
+          position={gamePosition}
+          onPieceDrop={onDrop}
+          boardOrientation={
+            whitePlayerUserName === username ? "white" : "black"
+          }
+        />
+      </div>
+      <div className=" w-full">
         <ProfileCard
           username={
             username === whitePlayerUserName
